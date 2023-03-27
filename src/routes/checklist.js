@@ -7,20 +7,29 @@ const Checklist = require('../models/checklist')
 router.get('/', async (req, res) => {
   try {
     let checklists = await Checklist.find({})
-    res.status(200).json(checklists)
+    res.status(200).render('checklists/index',{checklists: checklists})
   } catch (err) {
-    res.status(500).json(err)
+    res.status(500).render('pages/error', {error: "Erro ao exibir as listas."})
+  }
+})
+
+router.get('/new', async (req, res) => {
+  try {
+    let checklist = new Checklist();
+    res.status(200).render('checklists/new', {checklist: checklist})
+  } catch (err) {
+    res.status(500).render('pages/error', {error: "Erro ao carregar o formulário."})
   }
 })
 
 router.post('/', async (req, res) => {
-  let { name } = req.body
+  let { name } = req.body.checklist;
 
   try {
     let checklist = await Checklist.create({ name })
-    res.status(200).json(checklist)
+    res.redirect('/checklists')
   } catch (err) {
-    res.status(422).json(err)
+    res.status(422).render('checklists/new',{ checklist: { ...checklist, err} })  
   }
 
 })
@@ -28,9 +37,9 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     let checklist = await Checklist.findById(req.params.id)
-    res.status(200).json(checklist)
+    res.status(200).render('checklists/show',{checklist: checklist})
   } catch (err) {
-    res.status(422).json(err)
+    res.status(500).render('pages/error', {error: "Erro ao exibir a lista de tarefas."})
   }
 })
 
